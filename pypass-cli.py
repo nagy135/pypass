@@ -25,13 +25,13 @@ if __name__ == "__main__":
     instance = Pypass(args.masterpass)
     if args.command == 'print':
         if args.clip:
-            if args.i is None:
-                print('specify record index (option -i)')
+            if args.i is None and args.k is None:
+                print('specify record index (option -i) or record key (option -k)')
                 sys.exit(1)
             if not args.d:
                 print('you must use -d option to decrypt the password')
                 sys.exit(1)
-            instance.record_to_clipboard(int(args.i))
+            instance.record_to_clipboard(args.i, args.k)
             sys.exit(0)
         if args.d:
             instance.print(True, args.i, args.k)
