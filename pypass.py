@@ -18,11 +18,11 @@ colors = {
         }
 
 class Pypass(object):
-    def __init__(self):
+    def __init__(self, master_pass=None):
         self.data = list()
         self.directory = os.path.expanduser("~") + '/.config/pypass/'
         self.load_data()
-        self.master_pass = None
+        self.master_pass = master_pass
 
     def get_master_password(self):
         return getpass.getpass("master password: ")
@@ -56,39 +56,49 @@ class Pypass(object):
         password = getpass.getpass("password: ")
         website = input("website: ")
         description = input("description: ")
+        key = input("key: ")
         record = {
                 'username': username,
                 'password': encrypt(self.master_pass, password),
                 'website': website,
-                'description': description
+                'description': description,
+                'key': key
         }
         self.data.append(record)
         self.save_data()
 
     def delete(self, record_index):
+        if len(self.data) == 0:
+            raise Exception('No records to delete from')
         deleted_record = self.data.pop(record_index)
         self.save_data()
         print('successfully removed record')
         print(deleted_record)
 
     def record_to_clipboard(self, record_index):
-        self.master_pass = self.get_master_password()
+        if self.master_pass is None:
+            self.master_pass = self.get_master_password()
         os.system('echo "' + str(decrypt(self.master_pass, self.data[record_index]['password']).decode('cp1252')) + '" | xclip -r -selection clipboard')
 
-    def print_all(self, decrypt_password=False, record_index=None):
-        if decrypt_password:
+    def print(self, decrypt_password=False, record_index=None, record_key=None):
+        if decrypt_password and self.master_pass is None:
             self.master_pass = self.get_master_password()
         print(colors['red'] + '########### PASSWORDS #########' + colors['end'])
         for i,record in enumerate(self.data):
             if record_index is not None and record_index != i:
                 continue
-            print(colors['cyan'] + '#' + str(i) + colors['end'])
+            if record_key is not None and record['key'] != record_key:
+                continue
+            key = ''
+            if record['key'] != '':
+                key = ' :: ' + record['key']
+            print(colors['cyan'] + '#' + str(i) + key + colors['end'])
             print(colors['bold'] + 'username: ' + colors['end'] + '{}'.format(record['username']))
             if decrypt_password:
                 try:
                     print(colors['green'] + 'password' + colors['end'] + ': {}'.format(decrypt(self.master_pass,record['password']).decode('cp1252')))
                 except UnicodeDecodeError:
-                    print(colors['bold'] + 'password' + colors['end'] + ': decryption failed')
+                    print(colors['green'] + 'password' + colors['end'] + ': decryption failed')
             else:
                 print('password: {}'.format(record['password']))
             if record['website'] != '':
@@ -102,4 +112,4 @@ if __name__ == "__main__":
     # instance.add_record()
     # instance.data = list()
     # instance.save_data()
-    instance.print_all(decrypt_password=True)
+    instance.print(decrypt_password=True)

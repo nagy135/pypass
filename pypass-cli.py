@@ -12,7 +12,9 @@ if __name__ == "__main__":
     parser.add_argument("command", help="command to run", choices=['print', 'add', 'version', 'delete'])
     parser.add_argument("-d", help="decrypt password", action="store_true")
     parser.add_argument("-i", help="specify index of record", type=int)
+    parser.add_argument("-k", help="specify key of record", type=str)
     parser.add_argument("-c", help="clean terminal", action="store_true")
+    parser.add_argument("--masterpass", help="give master password from call", type=str)
     parser.add_argument("--clip", help="paste password to clipboard", action="store_true")
     args = parser.parse_args()
     if args.c:
@@ -20,7 +22,7 @@ if __name__ == "__main__":
     if args.command is None:
         print("No command given...try --help")
         sys.exit(1)
-    instance = Pypass()
+    instance = Pypass(args.masterpass)
     if args.command == 'print':
         if args.clip:
             if args.i is None:
@@ -32,9 +34,9 @@ if __name__ == "__main__":
             instance.record_to_clipboard(int(args.i))
             sys.exit(0)
         if args.d:
-            instance.print_all(True, args.i)
+            instance.print(True, args.i, args.k)
         else:
-            instance.print_all(False, args.i)
+            instance.print(False, args.i, args.k)
     elif args.command == 'add':
         instance.add_record()
     elif args.command == 'version':
