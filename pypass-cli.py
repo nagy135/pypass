@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", help="specify index of record", type=int)
     parser.add_argument("-k", help="specify key of record", type=str)
     parser.add_argument("-c", help="clean terminal", action="store_true")
+    parser.add_argument("-u", help="put username into clipboard instead of password", action="store_true")
     parser.add_argument("--masterpass", help="give master password from call", type=str)
     parser.add_argument("--clip", help="paste password to clipboard", action="store_true")
     args = parser.parse_args()
@@ -31,7 +32,7 @@ if __name__ == "__main__":
             if not args.d:
                 print('you must use -d option to decrypt the password')
                 sys.exit(1)
-            instance.record_to_clipboard(args.i, args.k)
+            instance.record_to_clipboard(args.i, args.k, args.u)
             sys.exit(0)
         if args.d:
             instance.print(True, args.i, args.k)

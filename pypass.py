@@ -75,7 +75,7 @@ class Pypass(object):
         print('successfully removed record')
         print(deleted_record)
 
-    def record_to_clipboard(self, record_index=None, record_key=None):
+    def record_to_clipboard(self, record_index=None, record_key=None, username=False):
         if record_index is not None:
             record_index = int(record_index)
         if self.master_pass is None:
@@ -86,7 +86,11 @@ class Pypass(object):
                     record_index = i
             if record_index is None:
                 raise Exception('No record with given key')
-        os.system('echo "' + str(decrypt(self.master_pass, self.data[record_index]['password']).decode('cp1252')) + '" | xclip -r -selection clipboard')
+        if username:
+            clip_data = self.data[record_index]['username']
+        else:
+            clip_data = str(decrypt(self.master_pass, self.data[record_index]['password']).decode('cp1252'))
+        os.system('echo "' + clip_data + '" | xclip -r -selection clipboard')
 
     def print(self, decrypt_password=False, record_index=None, record_key=None):
         if decrypt_password and self.master_pass is None:
